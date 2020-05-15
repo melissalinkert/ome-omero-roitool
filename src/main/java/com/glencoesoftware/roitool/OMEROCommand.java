@@ -27,9 +27,9 @@ import loci.common.services.DependencyException;
 import omero.ServerError;
 import picocli.CommandLine;
 
-public abstract class OMEROCommand
-{
-    private static final Logger log =
+public abstract class OMEROCommand {
+
+    private static final Logger LOG =
             LoggerFactory.getLogger(OMEROCommand.class);
 
     @CommandLine.Option(
@@ -71,7 +71,7 @@ public abstract class OMEROCommand
     /**
      * Creates an OME OMERO converter which will be initialized with the
      * server, port, and session key or username/password pair available to
-     * this class
+     * this class.
      * @param imageId OMERO Image ID to export ROIs from
      * @return Initialized OME OMERO converter
      * @throws ServerError If there is an error communicating with OMERO
@@ -86,17 +86,14 @@ public abstract class OMEROCommand
                    CannotCreateSessionException, PermissionDeniedException
     {
         OMEOMEROConverter converter = new OMEOMEROConverter(imageId);
-        if (username != null)
-        {
+        if (username != null) {
             converter.initialize(username, password, server, port, group);
         }
-        else if (sessionKey != null)
-        {
+        else if (sessionKey != null) {
             converter.initialize(server, port, sessionKey);
         }
-        else
-        {
-            log.error("No OMERO username/password or session key, can't run!");
+        else {
+            LOG.error("No OMERO username/password or session key, can't run!");
             return null;
         }
         return converter;

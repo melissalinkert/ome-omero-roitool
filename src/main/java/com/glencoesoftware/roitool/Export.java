@@ -21,22 +21,17 @@ package com.glencoesoftware.roitool;
 import java.io.File;
 import java.util.concurrent.Callable;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(
         name = "export",
         description = "Export ROIs to an OME-XML file from an OMERO server"
 )
-public class Export extends OMEROCommand implements Callable<Integer>
-{
-    private static final Logger log =
-            LoggerFactory.getLogger(Export.class);
+public class Export extends OMEROCommand implements Callable<Integer> {
 
-    @CommandLine.Option(
+    @Option(
             names = "--help",
             usageHelp = true,
             description = "Display this help and exit"
@@ -56,20 +51,16 @@ public class Export extends OMEROCommand implements Callable<Integer>
     File output;
 
     @Override
-    public Integer call() throws Exception
-    {
+    public Integer call() throws Exception {
         OMEOMEROConverter converter = createConverter(imageId);
-        if (converter == null)
-        {
+        if (converter == null) {
             return -1;
         }
 
-        try
-        {
+        try {
             converter.exportRoisToFile(output);
         }
-        finally
-        {
+        finally {
             converter.close();
         }
         return 0;

@@ -47,7 +47,7 @@ import static omero.rtypes.unwrap;
 
 public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
 
-    private static final Logger log =
+    private static final Logger LOG =
             LoggerFactory.getLogger(ROIMetadataStoreClient.class);
 
     /** A list of all objects their LSIDs. */
@@ -57,7 +57,7 @@ public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
     private Map<Integer, Roi> roiList =
         new LinkedHashMap<Integer, Roi>();
 
-		private Long groupID = null;
+    private Long groupID = null;
 
     /**
      * Returns a Roi model object based on its indexes within the
@@ -65,8 +65,7 @@ public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
      * @param roiIndex Roi index.
      * @return See above.
      */
-    private Roi getRoi(int roiIndex)
-    {
+    private Roi getRoi(int roiIndex) {
         return roiList.get(roiIndex);
     }
 
@@ -76,42 +75,36 @@ public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
      * @param imageId id of the image to link the Rois to
      * @return List of Rois after database commit.
      */
-    public List<IObject> saveToDB(long imageId) throws ServerError
-    {
+    public List<IObject> saveToDB(long imageId) throws ServerError {
         Collection<IObjectContainer> containers =
                 this.getContainerCache().values();
         IObjectContainer[] containerArray =
                 containers.toArray(new IObjectContainer[containers.size()]);
         // Containers check
-        log.debug("Starting containers....");
-        for (LSID key : this.getContainerCache().keySet())
-        {
+        LOG.debug("Starting containers....");
+        for (LSID key : this.getContainerCache().keySet()) {
             String s = String.format("%s == %s,%s,%s,%s",
                     key, this.getContainerCache().get(key).sourceObject,
                     this.getContainerCache().get(key).sourceObject.getId(),
                     this.getContainerCache().get(key).sourceObject.isLoaded(),
                     this.getContainerCache().get(key).LSID);
-            log.debug(s);
+            LOG.debug(s);
         }
         // Reference check
-        log.debug("Starting references....");
-        for (String key : this.getReferenceStringCache().keySet())
-        {
-            for (String value : this.getReferenceStringCache().get(key))
-            {
-                String s = String.format("%s == %s", key, value);
-                log.debug(s);
+        LOG.debug("Starting references....");
+        for (String key : this.getReferenceStringCache().keySet()) {
+            for (String value : this.getReferenceStringCache().get(key)) {
+                LOG.debug("{} == {}", key, value);
             }
         }
-        log.debug("containerCache contains " + this.getContainerCache().size()
-                  + " entries.");
-        log.debug("referenceCache contains " + countCachedReferences(null, null)
-                  + " entries.");
+        LOG.debug("containerCache contains {} entries.",
+            this.getContainerCache().size());
+        LOG.debug("referenceCache contains {} entries.",
+            countCachedReferences(null, null));
         // Object updates
-        log.debug("Handling # of containers: {}", containerArray.length);
-        for (IObjectContainer container : containerArray)
-        {
-            log.debug("{}, {}", container.LSID, container.indexes,
+        LOG.debug("Handling # of containers: {}", containerArray.length);
+        for (IObjectContainer container : containerArray) {
+            LOG.debug("{}, {}, {}", container.LSID, container.indexes,
                       container.sourceObject);
             this.updateObject(container.LSID, container.sourceObject,
                               container.indexes);
@@ -119,16 +112,16 @@ public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
         // Reference updates
         String[] referenceKeys = this.getReferenceStringCache().keySet()
                 .toArray(new String[this.getReferenceStringCache().size()]);
-        log.debug("Handling # of references: {}", referenceKeys.length);
+        LOG.debug("Handling # of references: {}", referenceKeys.length);
         this.updateReferences(this.getReferenceStringCache());
         // Save to DB
-        log.info("Saving to DB");
+        LOG.info("Saving to DB");
 
         linkImage(imageId);
         ServiceFactoryPrx sf = this.getServiceFactory();
         List<IObject> rois = new ArrayList<IObject>(roiList.values());
 
-				Map<String, String> callCtx = new HashMap<String, String>();
+        Map<String, String> callCtx = new HashMap<String, String>();
         if (groupID != null) {
             callCtx.put("omero.group", groupID.toString());
         }
@@ -136,9 +129,8 @@ public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
         IUpdatePrx updateService =
             (IUpdatePrx) sf.getUpdateService().ice_context(callCtx);
         rois = updateService.saveAndReturnArray(rois);
-        for (IObject roi : rois)
-        {
-            log.info("Saved ROI with ID: {}", unwrap(roi.getId()));
+        for (IObject roi : rois) {
+            LOG.info("Saved ROI with ID: {}", unwrap(roi.getId()));
         }
         return rois;
     }
@@ -154,23 +146,19 @@ public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
                              Map<String, Integer> indexes)
     {
         lsidMap.put(new LSID(lsid), sourceObject);
-        if (sourceObject instanceof Roi)
-        {
-            log.debug("Handling Roi");
+        if (sourceObject instanceof Roi) {
+            LOG.debug("Handling Roi");
             handle(lsid, (Roi) sourceObject, indexes);
         }
-        else if (sourceObject instanceof Shape)
-        {
-            log.debug("Handling Shape");
+        else if (sourceObject instanceof Shape) {
+            LOG.debug("Handling Shape");
             handle(lsid, (Shape) sourceObject, indexes);
         }
-        else if (sourceObject instanceof Annotation)
-        {
-            log.debug("Handling Annotation");
+        else if (sourceObject instanceof Annotation) {
+            LOG.debug("Handling Annotation");
             handle(lsid, (Annotation) sourceObject, indexes);
         }
-        else
-        {
+        else {
             throw new ApiUsageException(
                 "Missing object handler for object type: "
                     + sourceObject.getClass());
@@ -181,26 +169,22 @@ public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
      * Updates our object graph references.
      * @param referenceCache Client side LSID reference cache.
      */
-    public void updateReferences(Map<String, String[]> referenceCache)
-    {
+    public void updateReferences(Map<String, String[]> referenceCache) {
         // This function is mostly processing back-references. e.g. If the OME
         // Schema has a AnnotationRef in ROI the referenceObject is Annotation
         // and the targetObject is ROI.
-        for (String target : referenceCache.keySet())
-        {
-            for (String reference : referenceCache.get(target))
-            {
+        for (String target : referenceCache.keySet()) {
+            for (String reference : referenceCache.get(target)) {
                 LSID targetLSID = new LSID(target);
                 IObject targetObject = lsidMap.get(targetLSID);
                 IObject referenceObject = lsidMap.get(
                         new LSID(stripCustomSuffix(reference)));
-                log.debug(String.format(
+                LOG.debug(String.format(
                         "Updating reference handler for %s(%s) --> %s(%s).",
                         reference, referenceObject, target, targetObject));
-                if (targetObject instanceof Roi)
-                {
+                if (targetObject instanceof Roi) {
                     if (referenceObject instanceof Annotation) {
-                        log.debug("Roi -> Annotation");
+                        LOG.debug("Roi -> Annotation");
                         handleReference((Roi) targetObject,
                                         (Annotation) referenceObject);
                         continue;
@@ -213,27 +197,26 @@ public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
     /**
      * Strips custom, reference only suffixes from LSID so that the object
      * may be correctly looked up.
-     * @param LSID The LSID string to strip the suffix from.
-     * @return A new LSID string with the suffix stripped or <code>LSID</code>.
+     * @param lsid The LSID string to strip the suffix from.
+     * @return A new LSID string with the suffix stripped or <code>lsid</code>.
      */
-    private String stripCustomSuffix(String LSID)
-    {
-        if (LSID.endsWith("OMERO_EMISSION_FILTER")
-            || LSID.endsWith("OMERO_EXCITATION_FILTER"))
+    private String stripCustomSuffix(String lsid) {
+        if (lsid.endsWith("OMERO_EMISSION_FILTER")
+            || lsid.endsWith("OMERO_EXCITATION_FILTER"))
         {
-            return LSID.substring(0, LSID.lastIndexOf(':'));
+            return lsid.substring(0, lsid.lastIndexOf(':'));
         }
-        return LSID;
+        return lsid;
     }
 
     /**
      * Handles inserting a specific type of model object into our object graph.
-     * @param LSID LSID of the model object.
+     * @param lsid LSID of the model object.
      * @param sourceObject Model object itself.
      * @param indexes Any indexes that should be used to reference the model
      * object.
      */
-    private void handle(String LSID, Roi sourceObject,
+    private void handle(String lsid, Roi sourceObject,
                         Map<String, Integer> indexes)
     {
         roiList.put(indexes.get("roiIndex"), sourceObject);
@@ -241,15 +224,15 @@ public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
 
     /**
      * Handles inserting a specific type of model object into our object graph.
-     * @param LSID LSID of the model object.
+     * @param lsid LSID of the model object.
      * @param sourceObject Model object itself.
      * @param indexes Any indexes that should be used to reference the model
      * object.
      */
-    private void handle(String LSID, Shape sourceObject,
+    private void handle(String lsid, Shape sourceObject,
                         Map<String, Integer> indexes)
     {
-        log.debug("Adding shape");
+        LOG.debug("Adding shape");
         int roiIndex = indexes.get("roiIndex");
         Roi r = getRoi(roiIndex);
         r.addShape(sourceObject);
@@ -257,12 +240,12 @@ public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
 
     /**
      * Handles inserting a specific type of model object into our object graph.
-     * @param LSID LSID of the model object.
+     * @param lsid LSID of the model object.
      * @param sourceObject Model object itself.
      * @param indexes Any indexes that should be used to reference the model
      * object.
      */
-    private void handle(String LSID, Annotation sourceObject,
+    private void handle(String lsid, Annotation sourceObject,
                         Map<String, Integer> indexes)
     {
         // No-op.
@@ -274,18 +257,20 @@ public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
      * @param target Target model object.
      * @param reference Reference model object.
      */
-    private void handleReference(Roi target, Annotation reference)
-    {
+    private void handleReference(Roi target, Annotation reference) {
         target.linkAnnotation(reference);
     }
 
-    public void linkImage(long imageId)
-    {
+    /**
+     * Link all of the ROIs to the specified image.
+     *
+     * @param imageId OMERO Image ID
+     */
+    public void linkImage(long imageId) {
         Image image = new ImageI(imageId, false);
-        log.info("Linking ROIs to Image:{}", imageId);
-        for (Roi roi : roiList.values())
-        {
-            log.debug("ROI name: {}", unwrap(roi.getName()));
+        LOG.info("Linking ROIs to Image:{}", imageId);
+        for (Roi roi : roiList.values()) {
+            LOG.debug("ROI name: {}", unwrap(roi.getName()));
             roi.setImage(image);
         }
     }
@@ -294,17 +279,15 @@ public class ROIMetadataStoreClient extends OMEROMetadataStoreClient {
      * @see loci.formats.meta.MetadataStore#setROIName(java.lang.String, int)
      */
     @Override
-    public void setROIName(String name, int ROIIndex)
-    {
-        
+    public void setROIName(String name, int roiIndex) {
         LinkedHashMap<Index, Integer> indexes =
                 new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.ROI_INDEX, roiIndex);
         Roi o = (Roi) getIObjectContainer(Roi.class, indexes).sourceObject;
         o.setName(toRType(name));
     }
 
-		@Override
+    @Override
     public Long setGroup(Long id) {
         groupID = id;
         return super.setGroup(id);

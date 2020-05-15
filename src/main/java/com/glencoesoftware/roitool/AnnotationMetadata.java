@@ -42,7 +42,8 @@ import omero.model.IObject;
 import org.joda.time.Instant;
 
 /**
- * An instance of {@link loci.formats.meta.MetadataRetrieve} that provides metadata about OMERO annotations.
+ * An instance of {@link loci.formats.meta.MetadataRetrieve}
+ * that provides metadata about OMERO annotations.
  * @author m.t.b.carroll@dundee.ac.uk
  * @author Josh Moore josh at glencoesoftware.com
  * @author Chris Allan callan at blackcat.ca
@@ -50,88 +51,97 @@ import org.joda.time.Instant;
  */
 public class AnnotationMetadata extends MetadataBase {
 
-    private final List<BooleanAnnotation> booleanAnnotationList = new ArrayList<>();
-    private final List<CommentAnnotation> commentAnnotationList = new ArrayList<>();
-    private final List<DoubleAnnotation> doubleAnnotationList = new ArrayList<>();
+    private final List<BooleanAnnotation> booleanAnnotationList =
+        new ArrayList<>();
+    private final List<CommentAnnotation> commentAnnotationList =
+        new ArrayList<>();
+    private final List<DoubleAnnotation> doubleAnnotationList =
+        new ArrayList<>();
     private final List<LongAnnotation> longAnnotationList = new ArrayList<>();
     private final List<MapAnnotation> mapAnnotationList = new ArrayList<>();
     private final List<TagAnnotation> tagAnnotationList = new ArrayList<>();
     private final List<TermAnnotation> termAnnotationList = new ArrayList<>();
-    private final List<TimestampAnnotation> timestampAnnotationList = new ArrayList<>();
+    private final List<TimestampAnnotation> timestampAnnotationList =
+        new ArrayList<>();
     private final List<XmlAnnotation> xmlAnnotationList = new ArrayList<>();
 
-    public AnnotationMetadata(Function<IObject, String> lsids, List<Annotation> annotations) {
+    /**
+     * Construct a new AnnotationMetadata that provides access to the given list
+     * of OMERO annotations using the MetadataRetrieve API.
+     * This is used to convert OMERO annotations to OME-XML.
+     *
+     * @param lsids function used to get an object's LSID
+     * @param annotations list of OMERO annotation objects
+     */
+    public AnnotationMetadata(Function<IObject, String> lsids,
+        List<Annotation> annotations)
+    {
         super(lsids);
         for (final Annotation annotation : annotations) {
             if (annotation instanceof BooleanAnnotation) {
                 booleanAnnotationList.add((BooleanAnnotation) annotation);
-            } else if (annotation instanceof CommentAnnotation) {
+            }
+            else if (annotation instanceof CommentAnnotation) {
                 commentAnnotationList.add((CommentAnnotation) annotation);
-            } else if (annotation instanceof DoubleAnnotation) {
+            }
+            else if (annotation instanceof DoubleAnnotation) {
                 doubleAnnotationList.add((DoubleAnnotation) annotation);
-            } else if (annotation instanceof LongAnnotation) {
+            }
+            else if (annotation instanceof LongAnnotation) {
                 longAnnotationList.add((LongAnnotation) annotation);
-            } else if (annotation instanceof MapAnnotation) {
+            }
+            else if (annotation instanceof MapAnnotation) {
                 mapAnnotationList.add((MapAnnotation) annotation);
-            } else if (annotation instanceof TagAnnotation) {
+            }
+            else if (annotation instanceof TagAnnotation) {
                 tagAnnotationList.add((TagAnnotation) annotation);
-            } else if (annotation instanceof TermAnnotation) {
+            }
+            else if (annotation instanceof TermAnnotation) {
                 termAnnotationList.add((TermAnnotation) annotation);
-            } else if (annotation instanceof TimestampAnnotation) {
+            }
+            else if (annotation instanceof TimestampAnnotation) {
                 timestampAnnotationList.add((TimestampAnnotation) annotation);
-            } else if (annotation instanceof XmlAnnotation) {
+            }
+            else if (annotation instanceof XmlAnnotation) {
                 xmlAnnotationList.add((XmlAnnotation) annotation);
             }
         }
     }
 
-    private <T extends Annotation> T getAnnotation(Class<T> klass, int index)
-    {
-        try
-        {
-            if (klass.equals(XmlAnnotation.class))
-            {
+    private <T extends Annotation> T getAnnotation(Class<T> klass, int index) {
+        try {
+            if (klass.equals(XmlAnnotation.class)) {
                 return (T) xmlAnnotationList.get(index);
             }
-            else if (klass.equals(LongAnnotation.class))
-            {
+            else if (klass.equals(LongAnnotation.class)) {
                 return (T) longAnnotationList.get(index);
             }
-            else if (klass.equals(BooleanAnnotation.class))
-            {
+            else if (klass.equals(BooleanAnnotation.class)) {
                 return (T) booleanAnnotationList.get(index);
             }
-            else if (klass.equals(DoubleAnnotation.class))
-            {
+            else if (klass.equals(DoubleAnnotation.class)) {
                 return (T) doubleAnnotationList.get(index);
             }
-            else if (klass.equals(CommentAnnotation.class))
-            {
+            else if (klass.equals(CommentAnnotation.class)) {
                 return (T) commentAnnotationList.get(index);
             }
-            else if (klass.equals(MapAnnotation.class))
-            {
+            else if (klass.equals(MapAnnotation.class)) {
                 return (T) mapAnnotationList.get(index);
             }
-            else if (klass.equals(TimestampAnnotation.class))
-            {
+            else if (klass.equals(TimestampAnnotation.class)) {
                 return (T) timestampAnnotationList.get(index);
             }
-            else if (klass.equals(TagAnnotation.class))
-            {
+            else if (klass.equals(TagAnnotation.class)) {
                 return (T) tagAnnotationList.get(index);
             }
-            else if (klass.equals(TermAnnotation.class))
-            {
+            else if (klass.equals(TermAnnotation.class)) {
                 return (T) termAnnotationList.get(index);
             }
-            else
-            {
+            else {
                 return null;
             }
         }
-        catch (ArrayIndexOutOfBoundsException e)
-        {
+        catch (ArrayIndexOutOfBoundsException e) {
             return null;
         }
     }
@@ -140,221 +150,191 @@ public class AnnotationMetadata extends MetadataBase {
             Class<? extends Annotation> klass, int index)
     {
         Annotation o = getAnnotation(klass, index);
-        return o != null? fromRType(o.getDescription()) : null;
+        return o != null ? fromRType(o.getDescription()) : null;
     }
 
     private String getAnnotationID(
             Class<? extends Annotation> klass, int index)
     {
         Annotation o = getAnnotation(klass, index);
-        return o != null? getLsid(o) : null;
+        return o != null ? getLsid(o) : null;
     }
 
     private String getAnnotationNamespace(
             Class<? extends Annotation> klass, int index)
     {
         Annotation o = getAnnotation(klass, index);
-        return o != null? fromRType(o.getNs()) : null;
+        return o != null ? fromRType(o.getNs()) : null;
     }
 
     @Override
-    public int getXMLAnnotationCount()
-    {
+    public int getXMLAnnotationCount() {
         return xmlAnnotationList.size();
     }
 
     @Override
-    public String getXMLAnnotationDescription(int XMLAnnotationIndex)
-    {
+    public String getXMLAnnotationDescription(int xmlAnnotationIndex) {
         return getAnnotationDescription(
-                XmlAnnotation.class, XMLAnnotationIndex);
+                XmlAnnotation.class, xmlAnnotationIndex);
     }
 
     @Override
-    public String getXMLAnnotationID(int XMLAnnotationIndex)
-    {
-        return getAnnotationID(XmlAnnotation.class, XMLAnnotationIndex);
+    public String getXMLAnnotationID(int xmlAnnotationIndex) {
+        return getAnnotationID(XmlAnnotation.class, xmlAnnotationIndex);
     }
 
     @Override
-    public String getXMLAnnotationNamespace(int XMLAnnotationIndex)
-    {
-        return getAnnotationNamespace(XmlAnnotation.class, XMLAnnotationIndex);
+    public String getXMLAnnotationNamespace(int xmlAnnotationIndex) {
+        return getAnnotationNamespace(XmlAnnotation.class, xmlAnnotationIndex);
     }
 
     @Override
-    public String getXMLAnnotationValue(int XMLAnnotationIndex)
-    {
+    public String getXMLAnnotationValue(int xmlAnnotationIndex) {
         XmlAnnotation o = getAnnotation(
-                XmlAnnotation.class, XMLAnnotationIndex);
-        return o != null? fromRType(o.getTextValue()) : null;
+                XmlAnnotation.class, xmlAnnotationIndex);
+        return o != null ? fromRType(o.getTextValue()) : null;
     }
 
     @Override
-    public int getLongAnnotationCount()
-    {
+    public int getLongAnnotationCount() {
         return longAnnotationList.size();
     }
 
     @Override
-    public String getLongAnnotationDescription(int longAnnotationIndex)
-    {
+    public String getLongAnnotationDescription(int longAnnotationIndex) {
         return getAnnotationDescription(
                 LongAnnotation.class, longAnnotationIndex);
     }
 
     @Override
-    public String getLongAnnotationID(int longAnnotationIndex)
-    {
+    public String getLongAnnotationID(int longAnnotationIndex) {
         return getAnnotationID(LongAnnotation.class, longAnnotationIndex);
     }
 
     @Override
-    public String getLongAnnotationNamespace(int longAnnotationIndex)
-    {
+    public String getLongAnnotationNamespace(int longAnnotationIndex) {
         return getAnnotationNamespace(
                 LongAnnotation.class, longAnnotationIndex);
     }
 
     @Override
-    public Long getLongAnnotationValue(int longAnnotationIndex)
-    {
+    public Long getLongAnnotationValue(int longAnnotationIndex) {
         LongAnnotation o = getAnnotation(
                 LongAnnotation.class, longAnnotationIndex);
-        return o != null? fromRType(o.getLongValue()) : null;
+        return o != null ? fromRType(o.getLongValue()) : null;
     }
 
     @Override
-    public int getBooleanAnnotationCount()
-    {
+    public int getBooleanAnnotationCount() {
         return booleanAnnotationList.size();
     }
 
     @Override
-    public String getBooleanAnnotationDescription(int booleanAnnotationIndex)
-    {
+    public String getBooleanAnnotationDescription(int booleanAnnotationIndex) {
         return getAnnotationDescription(
                 BooleanAnnotation.class, booleanAnnotationIndex);
     }
 
     @Override
-    public String getBooleanAnnotationID(int booleanAnnotationIndex)
-    {
+    public String getBooleanAnnotationID(int booleanAnnotationIndex) {
         return getAnnotationID(BooleanAnnotation.class, booleanAnnotationIndex);
     }
 
     @Override
-    public String getBooleanAnnotationNamespace(int booleanAnnotationIndex)
-    {
+    public String getBooleanAnnotationNamespace(int booleanAnnotationIndex) {
         return getAnnotationNamespace(
                 BooleanAnnotation.class, booleanAnnotationIndex);
     }
 
     @Override
-    public Boolean getBooleanAnnotationValue(int booleanAnnotationIndex)
-    {
+    public Boolean getBooleanAnnotationValue(int booleanAnnotationIndex) {
         BooleanAnnotation o = getAnnotation(
                 BooleanAnnotation.class, booleanAnnotationIndex);
-        return o != null? fromRType(o.getBoolValue()) : null;
+        return o != null ? fromRType(o.getBoolValue()) : null;
     }
 
     @Override
-    public int getDoubleAnnotationCount()
-    {
+    public int getDoubleAnnotationCount() {
         return doubleAnnotationList.size();
     }
 
     @Override
-    public String getDoubleAnnotationDescription(int doubleAnnotationIndex)
-    {
+    public String getDoubleAnnotationDescription(int doubleAnnotationIndex) {
         return getAnnotationDescription(
                 DoubleAnnotation.class, doubleAnnotationIndex);
     }
 
     @Override
-    public String getDoubleAnnotationID(int doubleAnnotationIndex)
-    {
+    public String getDoubleAnnotationID(int doubleAnnotationIndex) {
         return getAnnotationID(DoubleAnnotation.class, doubleAnnotationIndex);
     }
 
     @Override
-    public String getDoubleAnnotationNamespace(int doubleAnnotationIndex)
-    {
+    public String getDoubleAnnotationNamespace(int doubleAnnotationIndex) {
         return getAnnotationNamespace(
                 DoubleAnnotation.class, doubleAnnotationIndex);
     }
 
     @Override
-    public Double getDoubleAnnotationValue(int doubleAnnotationIndex)
-    {
+    public Double getDoubleAnnotationValue(int doubleAnnotationIndex) {
         DoubleAnnotation o = getAnnotation(
                 DoubleAnnotation.class, doubleAnnotationIndex);
-        return o != null? fromRType(o.getDoubleValue()) : null;
+        return o != null ? fromRType(o.getDoubleValue()) : null;
     }
 
     @Override
-    public int getCommentAnnotationCount()
-    {
+    public int getCommentAnnotationCount() {
         return commentAnnotationList.size();
     }
 
     @Override
-    public String getCommentAnnotationDescription(int commentAnnotationIndex)
-    {
+    public String getCommentAnnotationDescription(int commentAnnotationIndex) {
         return getAnnotationDescription(
                 CommentAnnotation.class, commentAnnotationIndex);
     }
 
     @Override
-    public String getCommentAnnotationID(int commentAnnotationIndex)
-    {
+    public String getCommentAnnotationID(int commentAnnotationIndex) {
         return getAnnotationID(CommentAnnotation.class, commentAnnotationIndex);
     }
 
     @Override
-    public String getCommentAnnotationNamespace(int commentAnnotationIndex)
-    {
+    public String getCommentAnnotationNamespace(int commentAnnotationIndex) {
         return getAnnotationNamespace(
                 CommentAnnotation.class, commentAnnotationIndex);
     }
 
     @Override
-    public String getCommentAnnotationValue(int commentAnnotationIndex)
-    {
+    public String getCommentAnnotationValue(int commentAnnotationIndex) {
         CommentAnnotation o = getAnnotation(
                 CommentAnnotation.class, commentAnnotationIndex);
-        return o != null? fromRType(o.getTextValue()) : null;
+        return o != null ? fromRType(o.getTextValue()) : null;
     }
 
     @Override
-    public int getMapAnnotationCount()
-    {
+    public int getMapAnnotationCount() {
         return mapAnnotationList.size();
     }
 
     @Override
-    public String getMapAnnotationDescription(int mapAnnotationIndex)
-    {
+    public String getMapAnnotationDescription(int mapAnnotationIndex) {
         return getAnnotationDescription(
                 MapAnnotation.class, mapAnnotationIndex);
     }
 
     @Override
-    public String getMapAnnotationID(int mapAnnotationIndex)
-    {
+    public String getMapAnnotationID(int mapAnnotationIndex) {
         return getAnnotationID(MapAnnotation.class, mapAnnotationIndex);
     }
 
     @Override
-    public String getMapAnnotationNamespace(int mapAnnotationIndex)
-    {
+    public String getMapAnnotationNamespace(int mapAnnotationIndex) {
         return getAnnotationNamespace(
                 MapAnnotation.class, mapAnnotationIndex);
     }
 
     @Override
-    public List<MapPair> getMapAnnotationValue(int mapAnnotationIndex)
-    {
+    public List<MapPair> getMapAnnotationValue(int mapAnnotationIndex) {
         final MapAnnotation ma = getAnnotation(
                 MapAnnotation.class, mapAnnotationIndex);
         final List<NamedValue> namedValues = ma.getMapValue();
@@ -369,103 +349,96 @@ public class AnnotationMetadata extends MetadataBase {
     }
 
     @Override
-    public int getTimestampAnnotationCount()
-    {
+    public int getTimestampAnnotationCount() {
         return timestampAnnotationList.size();
     }
 
     @Override
-    public String getTimestampAnnotationDescription(int timestampAnnotationIndex)
+    public String getTimestampAnnotationDescription(
+        int timestampAnnotationIndex)
     {
         return getAnnotationDescription(
                 TimestampAnnotation.class, timestampAnnotationIndex);
     }
 
     @Override
-    public String getTimestampAnnotationID(int timestampAnnotationIndex)
-    {
+    public String getTimestampAnnotationID(int timestampAnnotationIndex) {
         return getAnnotationID(
                 TimestampAnnotation.class, timestampAnnotationIndex);
     }
 
     @Override
-    public String getTimestampAnnotationNamespace(int timestampAnnotationIndex)
+    public String getTimestampAnnotationNamespace(
+        int timestampAnnotationIndex)
     {
         return getAnnotationNamespace(
                 TimestampAnnotation.class, timestampAnnotationIndex);
     }
 
     @Override
-    public Timestamp getTimestampAnnotationValue(int timestampAnnotationIndex)
-    {
+    public Timestamp getTimestampAnnotationValue(int timestampAnnotationIndex) {
         TimestampAnnotation o = getAnnotation(
                 TimestampAnnotation.class, timestampAnnotationIndex);
-        return o != null? new Timestamp(new Instant(o.getTimeValue().getValue())) : null;
+        if (o == null) {
+            return null;
+        }
+        return new Timestamp(new Instant(o.getTimeValue().getValue()));
     }
 
     @Override
-    public int getTagAnnotationCount()
-    {
+    public int getTagAnnotationCount() {
         return tagAnnotationList.size();
     }
 
     @Override
-    public String getTagAnnotationDescription(int tagAnnotationIndex)
-    {
+    public String getTagAnnotationDescription(int tagAnnotationIndex) {
         return getAnnotationDescription(
                 TagAnnotation.class, tagAnnotationIndex);
     }
 
     @Override
-    public String getTagAnnotationID(int tagAnnotationIndex)
-    {
+    public String getTagAnnotationID(int tagAnnotationIndex) {
         return getAnnotationID(TagAnnotation.class, tagAnnotationIndex);
     }
 
     @Override
-    public String getTagAnnotationNamespace(int tagAnnotationIndex)
-    {
+    public String getTagAnnotationNamespace(int tagAnnotationIndex) {
         return getAnnotationNamespace(TagAnnotation.class, tagAnnotationIndex);
     }
 
     @Override
-    public String getTagAnnotationValue(int tagAnnotationIndex)
-    {
+    public String getTagAnnotationValue(int tagAnnotationIndex) {
         TagAnnotation o = getAnnotation(
                 TagAnnotation.class, tagAnnotationIndex);
-        return o != null? fromRType(o.getTextValue()) : null;    }
+        return o != null ? fromRType(o.getTextValue()) : null;
+    }
 
     @Override
-    public int getTermAnnotationCount()
-    {
+    public int getTermAnnotationCount() {
         return termAnnotationList.size();
     }
 
     @Override
-    public String getTermAnnotationDescription(int termAnnotationIndex)
-    {
+    public String getTermAnnotationDescription(int termAnnotationIndex) {
         return getAnnotationDescription(
                 TermAnnotation.class, termAnnotationIndex);
     }
 
     @Override
-    public String getTermAnnotationID(int termAnnotationIndex)
-    {
+    public String getTermAnnotationID(int termAnnotationIndex) {
         return getAnnotationID(TermAnnotation.class, termAnnotationIndex);
     }
 
     @Override
-    public String getTermAnnotationNamespace(int termAnnotationIndex)
-    {
+    public String getTermAnnotationNamespace(int termAnnotationIndex) {
         return getAnnotationNamespace(
                 TermAnnotation.class, termAnnotationIndex);
     }
 
     @Override
-    public String getTermAnnotationValue(int termAnnotationIndex)
-    {
+    public String getTermAnnotationValue(int termAnnotationIndex) {
         TermAnnotation o = getAnnotation(
                 TermAnnotation.class, termAnnotationIndex);
-        return o != null? fromRType(o.getTermValue()) : null;
+        return o != null ? fromRType(o.getTermValue()) : null;
     }
 }

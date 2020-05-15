@@ -50,8 +50,8 @@ abstract class MetadataBase extends DummyMetadata {
 
     private final Function<IObject, String> lsids;
 
-    protected MetadataBase(Function<IObject, String> lsids) {
-        this.lsids = lsids;
+    protected MetadataBase(Function<IObject, String> lsidFunction) {
+        this.lsids = lsidFunction;
     }
 
     protected String getLsid(IObject object) {

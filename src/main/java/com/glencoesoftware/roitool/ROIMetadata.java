@@ -47,7 +47,8 @@ import omero.model.Roi;
 import omero.model.Shape;
 
 /**
- * An instance of {@link loci.formats.meta.MetadataRetrieve} that provides metadata about OMERO ROIs.
+ * An instance of {@link loci.formats.meta.MetadataRetrieve} that provides
+ * metadata about OMERO ROIs.
  * Ported from <code>org.openmicroscopy.client.downloader.metadata</code>
  * @author m.t.b.carroll@dundee.ac.uk
  * @author Josh Moore josh at glencoesoftware.com
@@ -58,15 +59,30 @@ public class ROIMetadata extends MetadataBase {
 
     private final List<Roi> roiList;
 
+    /**
+     * Construct a new ROIMetadata that provides access to the given list
+     * of OMERO ROIs using the MetadataRetrieve API.
+     * This is used to convert OMERO ROIs to OME-XML.
+     *
+     * @param lsids function used to get an object's LSID
+     * @param rois list of OMERO ROIs
+     */
     public ROIMetadata(Function<IObject, String> lsids, List<Roi> rois) {
         super(lsids);
         this.roiList = rois;
     }
 
-    private static AffineTransform toTransform(omero.model.AffineTransform omeroTransform) {
+    private static AffineTransform toTransform(
+        omero.model.AffineTransform omeroTransform)
+    {
         if (omeroTransform == null ||
-                omeroTransform.getA00() == null || omeroTransform.getA01() == null || omeroTransform.getA02() == null ||
-                omeroTransform.getA10() == null || omeroTransform.getA11() == null || omeroTransform.getA12() == null) {
+            omeroTransform.getA00() == null ||
+            omeroTransform.getA01() == null ||
+            omeroTransform.getA02() == null ||
+            omeroTransform.getA10() == null ||
+            omeroTransform.getA11() == null ||
+            omeroTransform.getA12() == null)
+        {
             return null;
         }
         final AffineTransform schemaTransform = new AffineTransform();
@@ -79,11 +95,13 @@ public class ROIMetadata extends MetadataBase {
         return schemaTransform;
     }
 
-    private <X extends Shape> X getShape(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        if (ROIIndex < 0 || shapeIndex < 0 || ROIIndex >= roiList.size()) {
+    private <X extends Shape> X getShape(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        if (roiIndex < 0 || shapeIndex < 0 || roiIndex >= roiList.size()) {
             return null;
         }
-        final Roi roi = roiList.get(ROIIndex);
+        final Roi roi = roiList.get(roiIndex);
         final List<Shape> shapes = roi.copyShapes();
         if (shapeIndex >= shapes.size()) {
             return null;
@@ -101,11 +119,13 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public String getROIAnnotationRef(int ROIIndex, int annotationRefIndex) {
-        if (ROIIndex < 0 || annotationRefIndex < 0 || ROIIndex >= roiList.size()) {
+    public String getROIAnnotationRef(int roiIndex, int annotationRefIndex) {
+        if (roiIndex < 0 || annotationRefIndex < 0 ||
+            roiIndex >= roiList.size())
+        {
             return null;
         }
-        final Roi roi = roiList.get(ROIIndex);
+        final Roi roi = roiList.get(roiIndex);
         final List<Annotation> annotations = roi.linkedAnnotationList();
         if (annotationRefIndex >= annotations.size()) {
             return null;
@@ -115,53 +135,53 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public int getROIAnnotationRefCount(int ROIIndex) {
-        if (ROIIndex < 0 || ROIIndex >= roiList.size()) {
+    public int getROIAnnotationRefCount(int roiIndex) {
+        if (roiIndex < 0 || roiIndex >= roiList.size()) {
             return -1;
         }
-        final Roi roi = roiList.get(ROIIndex);
+        final Roi roi = roiList.get(roiIndex);
         return roi.sizeOfAnnotationLinks();
     }
 
     @Override
-    public String getROIDescription(int ROIIndex) {
-        if (ROIIndex < 0 || ROIIndex >= roiList.size()) {
+    public String getROIDescription(int roiIndex) {
+        if (roiIndex < 0 || roiIndex >= roiList.size()) {
             return null;
         }
-        final Roi roi = roiList.get(ROIIndex);
+        final Roi roi = roiList.get(roiIndex);
         return fromRType(roi.getDescription());
     }
 
     @Override
-    public String getROIID(int ROIIndex) {
-        if (ROIIndex < 0 || ROIIndex >= roiList.size()) {
+    public String getROIID(int roiIndex) {
+        if (roiIndex < 0 || roiIndex >= roiList.size()) {
             return null;
         }
-        final Roi roi = roiList.get(ROIIndex);
+        final Roi roi = roiList.get(roiIndex);
         return getLsid(roi);
     }
 
     @Override
-    public String getROIName(int ROIIndex) {
-        if (ROIIndex < 0 || ROIIndex >= roiList.size()) {
+    public String getROIName(int roiIndex) {
+        if (roiIndex < 0 || roiIndex >= roiList.size()) {
             return null;
         }
-        final Roi roi = roiList.get(ROIIndex);
+        final Roi roi = roiList.get(roiIndex);
         return fromRType(roi.getName());
     }
 
     @Override
-    public int getShapeCount(int ROIIndex) {
-        if (ROIIndex < 0 || ROIIndex >= roiList.size()) {
+    public int getShapeCount(int roiIndex) {
+        if (roiIndex < 0 || roiIndex >= roiList.size()) {
             return -1;
         }
-        final Roi roi = roiList.get(ROIIndex);
+        final Roi roi = roiList.get(roiIndex);
         return roi.sizeOfShapes();
     }
 
     @Override
-    public String getShapeType(int ROIIndex, int shapeIndex) {
-        final Shape shape = getShape(ROIIndex, shapeIndex, Shape.class);
+    public String getShapeType(int roiIndex, int shapeIndex) {
+        final Shape shape = getShape(roiIndex, shapeIndex, Shape.class);
         if (shape == null) {
             return null;
         }
@@ -173,26 +193,29 @@ public class ROIMetadata extends MetadataBase {
         }
         if (shapeClass == Rectangle.class) {
             return "Rectangle";
-        } else {
+        }
+        else {
             return shapeClass.getSimpleName();
         }
     }
 
     @Override
-    public int getShapeAnnotationRefCount(int ROIIndex, int shapeIndex) {
-        final Shape shape = getShape(ROIIndex, shapeIndex, Shape.class);
+    public int getShapeAnnotationRefCount(int roiIndex, int shapeIndex) {
+        final Shape shape = getShape(roiIndex, shapeIndex, Shape.class);
         if (shape == null) {
             return -1;
         }
         return shape.sizeOfAnnotationLinks();
     }
 
-    private <X extends Shape> String getShapeAnnotationRef(int ROIIndex, int shapeIndex, int annotationRefIndex,
-            Class<X> expectedSubclass) {
+    private <X extends Shape> String getShapeAnnotationRef(
+        int roiIndex, int shapeIndex, int annotationRefIndex,
+        Class<X> expectedSubclass)
+    {
         if (annotationRefIndex < 0) {
             return null;
         }
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
@@ -204,8 +227,10 @@ public class ROIMetadata extends MetadataBase {
         return getLsid(annotation);
     }
 
-    private <X extends Shape> Color getShapeFillColor(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> Color getShapeFillColor(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
@@ -216,8 +241,10 @@ public class ROIMetadata extends MetadataBase {
         return new Color(color);
     }
 
-    private <X extends Shape> FillRule getShapeFillRule(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> FillRule getShapeFillRule(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
@@ -228,14 +255,17 @@ public class ROIMetadata extends MetadataBase {
         final FillRule fillRule;
         try {
             fillRule = FillRule.fromString(fillRuleName);
-        } catch (EnumerationException e) {
+        }
+        catch (EnumerationException e) {
             return null;
         }
         return fillRule;
     }
 
-    private <X extends Shape> FontFamily getShapeFontFamily(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> FontFamily getShapeFontFamily(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
@@ -246,22 +276,27 @@ public class ROIMetadata extends MetadataBase {
         final FontFamily fontFamily;
         try {
             fontFamily = FontFamily.fromString(fontFamilyName);
-        } catch (EnumerationException e) {
+        }
+        catch (EnumerationException e) {
             return null;
         }
         return fontFamily;
     }
 
-    private <X extends Shape> Length getShapeFontSize(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> Length getShapeFontSize(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
         return UnitsFactory.convertLength(shape.getFontSize());
     }
 
-    private <X extends Shape> FontStyle getShapeFontStyle(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> FontStyle getShapeFontStyle(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
@@ -272,30 +307,37 @@ public class ROIMetadata extends MetadataBase {
         final FontStyle fontStyle;
         try {
             fontStyle = FontStyle.fromString(fontStyleName);
-        } catch (EnumerationException e) {
+        }
+        catch (EnumerationException e) {
             return null;
         }
         return fontStyle;
     }
 
-    private <X extends Shape> String getShapeID(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> String getShapeID(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
         return getLsid(shape);
     }
 
-    private <X extends Shape> Boolean getShapeLocked(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> Boolean getShapeLocked(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
         return fromRType(shape.getLocked());
     }
 
-    private <X extends Shape> Color getShapeStrokeColor(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> Color getShapeStrokeColor(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
@@ -306,48 +348,60 @@ public class ROIMetadata extends MetadataBase {
         return new Color(color);
     }
 
-    private <X extends Shape> String getShapeStrokeDashArray(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> String getShapeStrokeDashArray(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
         return fromRType(shape.getStrokeDashArray());
     }
 
-    private <X extends Shape> Length getShapeStrokeWidth(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> Length getShapeStrokeWidth(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
         return UnitsFactory.convertLength(shape.getStrokeWidth());
     }
 
-    private <X extends Shape> NonNegativeInteger getShapeTheC(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> NonNegativeInteger getShapeTheC(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
         return toNonNegativeInteger(shape.getTheC());
     }
 
-    private <X extends Shape> NonNegativeInteger getShapeTheT(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> NonNegativeInteger getShapeTheT(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
         return toNonNegativeInteger(shape.getTheT());
     }
 
-    private <X extends Shape> NonNegativeInteger getShapeTheZ(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> NonNegativeInteger getShapeTheZ(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
         return toNonNegativeInteger(shape.getTheZ());
     }
 
-    private <X extends Shape> AffineTransform getShapeTransform(int ROIIndex, int shapeIndex, Class<X> expectedSubclass) {
-        final X shape = getShape(ROIIndex, shapeIndex, expectedSubclass);
+    private <X extends Shape> AffineTransform getShapeTransform(
+        int roiIndex, int shapeIndex, Class<X> expectedSubclass)
+    {
+        final X shape = getShape(roiIndex, shapeIndex, expectedSubclass);
         if (shape == null) {
             return null;
         }
@@ -355,83 +409,86 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public String getEllipseAnnotationRef(int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Ellipse.class);
+    public String getEllipseAnnotationRef(
+        int roiIndex, int shapeIndex, int annotationRefIndex)
+    {
+        return getShapeAnnotationRef(roiIndex, shapeIndex,
+            annotationRefIndex, Ellipse.class);
     }
 
     @Override
-    public Color getEllipseFillColor(int ROIIndex, int shapeIndex) {
-        return getShapeFillColor(ROIIndex, shapeIndex, Ellipse.class);
+    public Color getEllipseFillColor(int roiIndex, int shapeIndex) {
+        return getShapeFillColor(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public FillRule getEllipseFillRule(int ROIIndex, int shapeIndex) {
-        return getShapeFillRule(ROIIndex, shapeIndex, Ellipse.class);
+    public FillRule getEllipseFillRule(int roiIndex, int shapeIndex) {
+        return getShapeFillRule(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public FontFamily getEllipseFontFamily(int ROIIndex, int shapeIndex) {
-        return getShapeFontFamily(ROIIndex, shapeIndex, Ellipse.class);
+    public FontFamily getEllipseFontFamily(int roiIndex, int shapeIndex) {
+        return getShapeFontFamily(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public Length getEllipseFontSize(int ROIIndex, int shapeIndex) {
-        return getShapeFontSize(ROIIndex, shapeIndex, Ellipse.class);
+    public Length getEllipseFontSize(int roiIndex, int shapeIndex) {
+        return getShapeFontSize(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public FontStyle getEllipseFontStyle(int ROIIndex, int shapeIndex) {
-        return getShapeFontStyle(ROIIndex, shapeIndex, Ellipse.class);
+    public FontStyle getEllipseFontStyle(int roiIndex, int shapeIndex) {
+        return getShapeFontStyle(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public String getEllipseID(int ROIIndex, int shapeIndex) {
-        return getShapeID(ROIIndex, shapeIndex, Ellipse.class);
+    public String getEllipseID(int roiIndex, int shapeIndex) {
+        return getShapeID(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public Boolean getEllipseLocked(int ROIIndex, int shapeIndex) {
-        return getShapeLocked(ROIIndex, shapeIndex, Ellipse.class);
+    public Boolean getEllipseLocked(int roiIndex, int shapeIndex) {
+        return getShapeLocked(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public Color getEllipseStrokeColor(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeColor(ROIIndex, shapeIndex, Ellipse.class);
+    public Color getEllipseStrokeColor(int roiIndex, int shapeIndex) {
+        return getShapeStrokeColor(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public String getEllipseStrokeDashArray(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeDashArray(ROIIndex, shapeIndex, Ellipse.class);
+    public String getEllipseStrokeDashArray(int roiIndex, int shapeIndex) {
+        return getShapeStrokeDashArray(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public Length getEllipseStrokeWidth(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeWidth(ROIIndex, shapeIndex, Ellipse.class);
+    public Length getEllipseStrokeWidth(int roiIndex, int shapeIndex) {
+        return getShapeStrokeWidth(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public NonNegativeInteger getEllipseTheC(int ROIIndex, int shapeIndex) {
-        return getShapeTheC(ROIIndex, shapeIndex, Ellipse.class);
+    public NonNegativeInteger getEllipseTheC(int roiIndex, int shapeIndex) {
+        return getShapeTheC(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public NonNegativeInteger getEllipseTheT(int ROIIndex, int shapeIndex) {
-        return getShapeTheT(ROIIndex, shapeIndex, Ellipse.class);
+    public NonNegativeInteger getEllipseTheT(int roiIndex, int shapeIndex) {
+        return getShapeTheT(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public NonNegativeInteger getEllipseTheZ(int ROIIndex, int shapeIndex) {
-        return getShapeTheZ(ROIIndex, shapeIndex, Ellipse.class);
+    public NonNegativeInteger getEllipseTheZ(int roiIndex, int shapeIndex) {
+        return getShapeTheZ(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public AffineTransform getEllipseTransform(int ROIIndex, int shapeIndex) {
-        return getShapeTransform(ROIIndex, shapeIndex, Ellipse.class);
+    public AffineTransform getEllipseTransform(int roiIndex, int shapeIndex) {
+        return getShapeTransform(roiIndex, shapeIndex, Ellipse.class);
     }
 
     @Override
-    public Double getEllipseRadiusX(int ROIIndex, int shapeIndex) {
-        final Ellipse ellipse = getShape(ROIIndex, shapeIndex, Ellipse.class);
+    public Double getEllipseRadiusX(int roiIndex, int shapeIndex) {
+        final Ellipse ellipse = getShape(roiIndex, shapeIndex, Ellipse.class);
         if (ellipse == null) {
             return null;
         }
@@ -439,8 +496,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getEllipseRadiusY(int ROIIndex, int shapeIndex) {
-        final Ellipse ellipse = getShape(ROIIndex, shapeIndex, Ellipse.class);
+    public Double getEllipseRadiusY(int roiIndex, int shapeIndex) {
+        final Ellipse ellipse = getShape(roiIndex, shapeIndex, Ellipse.class);
         if (ellipse == null) {
             return null;
         }
@@ -448,8 +505,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public String getEllipseText(int ROIIndex, int shapeIndex) {
-        final Ellipse ellipse = getShape(ROIIndex, shapeIndex, Ellipse.class);
+    public String getEllipseText(int roiIndex, int shapeIndex) {
+        final Ellipse ellipse = getShape(roiIndex, shapeIndex, Ellipse.class);
         if (ellipse == null) {
             return null;
         }
@@ -457,8 +514,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getEllipseX(int ROIIndex, int shapeIndex) {
-        final Ellipse ellipse = getShape(ROIIndex, shapeIndex, Ellipse.class);
+    public Double getEllipseX(int roiIndex, int shapeIndex) {
+        final Ellipse ellipse = getShape(roiIndex, shapeIndex, Ellipse.class);
         if (ellipse == null) {
             return null;
         }
@@ -466,8 +523,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getEllipseY(int ROIIndex, int shapeIndex) {
-        final Ellipse ellipse = getShape(ROIIndex, shapeIndex, Ellipse.class);
+    public Double getEllipseY(int roiIndex, int shapeIndex) {
+        final Ellipse ellipse = getShape(roiIndex, shapeIndex, Ellipse.class);
         if (ellipse == null) {
             return null;
         }
@@ -475,83 +532,86 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public String getLabelAnnotationRef(int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Label.class);
+    public String getLabelAnnotationRef(
+        int roiIndex, int shapeIndex, int annotationRefIndex)
+    {
+        return getShapeAnnotationRef(roiIndex, shapeIndex,
+            annotationRefIndex, Label.class);
     }
 
     @Override
-    public Color getLabelFillColor(int ROIIndex, int shapeIndex) {
-        return getShapeFillColor(ROIIndex, shapeIndex, Label.class);
+    public Color getLabelFillColor(int roiIndex, int shapeIndex) {
+        return getShapeFillColor(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public FillRule getLabelFillRule(int ROIIndex, int shapeIndex) {
-        return getShapeFillRule(ROIIndex, shapeIndex, Label.class);
+    public FillRule getLabelFillRule(int roiIndex, int shapeIndex) {
+        return getShapeFillRule(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public FontFamily getLabelFontFamily(int ROIIndex, int shapeIndex) {
-        return getShapeFontFamily(ROIIndex, shapeIndex, Label.class);
+    public FontFamily getLabelFontFamily(int roiIndex, int shapeIndex) {
+        return getShapeFontFamily(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public Length getLabelFontSize(int ROIIndex, int shapeIndex) {
-        return getShapeFontSize(ROIIndex, shapeIndex, Label.class);
+    public Length getLabelFontSize(int roiIndex, int shapeIndex) {
+        return getShapeFontSize(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public FontStyle getLabelFontStyle(int ROIIndex, int shapeIndex) {
-        return getShapeFontStyle(ROIIndex, shapeIndex, Label.class);
+    public FontStyle getLabelFontStyle(int roiIndex, int shapeIndex) {
+        return getShapeFontStyle(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public String getLabelID(int ROIIndex, int shapeIndex) {
-        return getShapeID(ROIIndex, shapeIndex, Label.class);
+    public String getLabelID(int roiIndex, int shapeIndex) {
+        return getShapeID(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public Boolean getLabelLocked(int ROIIndex, int shapeIndex) {
-        return getShapeLocked(ROIIndex, shapeIndex, Label.class);
+    public Boolean getLabelLocked(int roiIndex, int shapeIndex) {
+        return getShapeLocked(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public Color getLabelStrokeColor(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeColor(ROIIndex, shapeIndex, Label.class);
+    public Color getLabelStrokeColor(int roiIndex, int shapeIndex) {
+        return getShapeStrokeColor(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public String getLabelStrokeDashArray(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeDashArray(ROIIndex, shapeIndex, Label.class);
+    public String getLabelStrokeDashArray(int roiIndex, int shapeIndex) {
+        return getShapeStrokeDashArray(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public Length getLabelStrokeWidth(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeWidth(ROIIndex, shapeIndex, Label.class);
+    public Length getLabelStrokeWidth(int roiIndex, int shapeIndex) {
+        return getShapeStrokeWidth(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public NonNegativeInteger getLabelTheC(int ROIIndex, int shapeIndex) {
-        return getShapeTheC(ROIIndex, shapeIndex, Label.class);
+    public NonNegativeInteger getLabelTheC(int roiIndex, int shapeIndex) {
+        return getShapeTheC(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public NonNegativeInteger getLabelTheT(int ROIIndex, int shapeIndex) {
-        return getShapeTheT(ROIIndex, shapeIndex, Label.class);
+    public NonNegativeInteger getLabelTheT(int roiIndex, int shapeIndex) {
+        return getShapeTheT(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public NonNegativeInteger getLabelTheZ(int ROIIndex, int shapeIndex) {
-        return getShapeTheZ(ROIIndex, shapeIndex, Label.class);
+    public NonNegativeInteger getLabelTheZ(int roiIndex, int shapeIndex) {
+        return getShapeTheZ(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public AffineTransform getLabelTransform(int ROIIndex, int shapeIndex) {
-        return getShapeTransform(ROIIndex, shapeIndex, Label.class);
+    public AffineTransform getLabelTransform(int roiIndex, int shapeIndex) {
+        return getShapeTransform(roiIndex, shapeIndex, Label.class);
     }
 
     @Override
-    public String getLabelText(int ROIIndex, int shapeIndex) {
-        final Label label = getShape(ROIIndex, shapeIndex, Label.class);
+    public String getLabelText(int roiIndex, int shapeIndex) {
+        final Label label = getShape(roiIndex, shapeIndex, Label.class);
         if (label == null) {
             return null;
         }
@@ -559,8 +619,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getLabelX(int ROIIndex, int shapeIndex) {
-        final Label label = getShape(ROIIndex, shapeIndex, Label.class);
+    public Double getLabelX(int roiIndex, int shapeIndex) {
+        final Label label = getShape(roiIndex, shapeIndex, Label.class);
         if (label == null) {
             return null;
         }
@@ -568,8 +628,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getLabelY(int ROIIndex, int shapeIndex) {
-        final Label label = getShape(ROIIndex, shapeIndex, Label.class);
+    public Double getLabelY(int roiIndex, int shapeIndex) {
+        final Label label = getShape(roiIndex, shapeIndex, Label.class);
         if (label == null) {
             return null;
         }
@@ -577,83 +637,86 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public String getLineAnnotationRef(int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Line.class);
+    public String getLineAnnotationRef(
+        int roiIndex, int shapeIndex, int annotationRefIndex)
+    {
+        return getShapeAnnotationRef(roiIndex, shapeIndex,
+            annotationRefIndex, Line.class);
     }
 
     @Override
-    public Color getLineFillColor(int ROIIndex, int shapeIndex) {
-        return getShapeFillColor(ROIIndex, shapeIndex, Line.class);
+    public Color getLineFillColor(int roiIndex, int shapeIndex) {
+        return getShapeFillColor(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public FillRule getLineFillRule(int ROIIndex, int shapeIndex) {
-        return getShapeFillRule(ROIIndex, shapeIndex, Line.class);
+    public FillRule getLineFillRule(int roiIndex, int shapeIndex) {
+        return getShapeFillRule(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public FontFamily getLineFontFamily(int ROIIndex, int shapeIndex) {
-        return getShapeFontFamily(ROIIndex, shapeIndex, Line.class);
+    public FontFamily getLineFontFamily(int roiIndex, int shapeIndex) {
+        return getShapeFontFamily(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public Length getLineFontSize(int ROIIndex, int shapeIndex) {
-        return getShapeFontSize(ROIIndex, shapeIndex, Line.class);
+    public Length getLineFontSize(int roiIndex, int shapeIndex) {
+        return getShapeFontSize(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public FontStyle getLineFontStyle(int ROIIndex, int shapeIndex) {
-        return getShapeFontStyle(ROIIndex, shapeIndex, Line.class);
+    public FontStyle getLineFontStyle(int roiIndex, int shapeIndex) {
+        return getShapeFontStyle(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public String getLineID(int ROIIndex, int shapeIndex) {
-        return getShapeID(ROIIndex, shapeIndex, Line.class);
+    public String getLineID(int roiIndex, int shapeIndex) {
+        return getShapeID(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public Boolean getLineLocked(int ROIIndex, int shapeIndex) {
-        return getShapeLocked(ROIIndex, shapeIndex, Line.class);
+    public Boolean getLineLocked(int roiIndex, int shapeIndex) {
+        return getShapeLocked(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public Color getLineStrokeColor(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeColor(ROIIndex, shapeIndex, Line.class);
+    public Color getLineStrokeColor(int roiIndex, int shapeIndex) {
+        return getShapeStrokeColor(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public String getLineStrokeDashArray(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeDashArray(ROIIndex, shapeIndex, Line.class);
+    public String getLineStrokeDashArray(int roiIndex, int shapeIndex) {
+        return getShapeStrokeDashArray(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public Length getLineStrokeWidth(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeWidth(ROIIndex, shapeIndex, Line.class);
+    public Length getLineStrokeWidth(int roiIndex, int shapeIndex) {
+        return getShapeStrokeWidth(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public NonNegativeInteger getLineTheC(int ROIIndex, int shapeIndex) {
-        return getShapeTheC(ROIIndex, shapeIndex, Line.class);
+    public NonNegativeInteger getLineTheC(int roiIndex, int shapeIndex) {
+        return getShapeTheC(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public NonNegativeInteger getLineTheT(int ROIIndex, int shapeIndex) {
-        return getShapeTheT(ROIIndex, shapeIndex, Line.class);
+    public NonNegativeInteger getLineTheT(int roiIndex, int shapeIndex) {
+        return getShapeTheT(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public NonNegativeInteger getLineTheZ(int ROIIndex, int shapeIndex) {
-        return getShapeTheZ(ROIIndex, shapeIndex, Line.class);
+    public NonNegativeInteger getLineTheZ(int roiIndex, int shapeIndex) {
+        return getShapeTheZ(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public AffineTransform getLineTransform(int ROIIndex, int shapeIndex) {
-        return getShapeTransform(ROIIndex, shapeIndex, Line.class);
+    public AffineTransform getLineTransform(int roiIndex, int shapeIndex) {
+        return getShapeTransform(roiIndex, shapeIndex, Line.class);
     }
 
     @Override
-    public Marker getLineMarkerStart(int ROIIndex, int shapeIndex) {
-        final Line line = getShape(ROIIndex, shapeIndex, Line.class);
+    public Marker getLineMarkerStart(int roiIndex, int shapeIndex) {
+        final Line line = getShape(roiIndex, shapeIndex, Line.class);
         if (line == null) {
             return null;
         }
@@ -663,14 +726,15 @@ public class ROIMetadata extends MetadataBase {
         }
         try {
             return Marker.fromString(markerStart.getValue());
-        } catch (EnumerationException ex) {
+        }
+        catch (EnumerationException ex) {
             return null;
         }
     }
 
     @Override
-    public Marker getLineMarkerEnd(int ROIIndex, int shapeIndex) {
-        final Line line = getShape(ROIIndex, shapeIndex, Line.class);
+    public Marker getLineMarkerEnd(int roiIndex, int shapeIndex) {
+        final Line line = getShape(roiIndex, shapeIndex, Line.class);
         if (line == null) {
             return null;
         }
@@ -680,14 +744,15 @@ public class ROIMetadata extends MetadataBase {
         }
         try {
             return Marker.fromString(markerEnd.getValue());
-        } catch (EnumerationException ex) {
+        }
+        catch (EnumerationException ex) {
             return null;
         }
     }
 
     @Override
-    public String getLineText(int ROIIndex, int shapeIndex) {
-        final Line line = getShape(ROIIndex, shapeIndex, Line.class);
+    public String getLineText(int roiIndex, int shapeIndex) {
+        final Line line = getShape(roiIndex, shapeIndex, Line.class);
         if (line == null) {
             return null;
         }
@@ -695,8 +760,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getLineX1(int ROIIndex, int shapeIndex) {
-        final Line line = getShape(ROIIndex, shapeIndex, Line.class);
+    public Double getLineX1(int roiIndex, int shapeIndex) {
+        final Line line = getShape(roiIndex, shapeIndex, Line.class);
         if (line == null) {
             return null;
         }
@@ -704,8 +769,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getLineX2(int ROIIndex, int shapeIndex) {
-        final Line line = getShape(ROIIndex, shapeIndex, Line.class);
+    public Double getLineX2(int roiIndex, int shapeIndex) {
+        final Line line = getShape(roiIndex, shapeIndex, Line.class);
         if (line == null) {
             return null;
         }
@@ -713,8 +778,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getLineY1(int ROIIndex, int shapeIndex) {
-        final Line line = getShape(ROIIndex, shapeIndex, Line.class);
+    public Double getLineY1(int roiIndex, int shapeIndex) {
+        final Line line = getShape(roiIndex, shapeIndex, Line.class);
         if (line == null) {
             return null;
         }
@@ -722,8 +787,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getLineY2(int ROIIndex, int shapeIndex) {
-        final Line line = getShape(ROIIndex, shapeIndex, Line.class);
+    public Double getLineY2(int roiIndex, int shapeIndex) {
+        final Line line = getShape(roiIndex, shapeIndex, Line.class);
         if (line == null) {
             return null;
         }
@@ -731,83 +796,86 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public String getPointAnnotationRef(int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Point.class);
+    public String getPointAnnotationRef(
+        int roiIndex, int shapeIndex, int annotationRefIndex)
+    {
+        return getShapeAnnotationRef(roiIndex, shapeIndex,
+            annotationRefIndex, Point.class);
     }
 
     @Override
-    public Color getPointFillColor(int ROIIndex, int shapeIndex) {
-        return getShapeFillColor(ROIIndex, shapeIndex, Point.class);
+    public Color getPointFillColor(int roiIndex, int shapeIndex) {
+        return getShapeFillColor(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public FillRule getPointFillRule(int ROIIndex, int shapeIndex) {
-        return getShapeFillRule(ROIIndex, shapeIndex, Point.class);
+    public FillRule getPointFillRule(int roiIndex, int shapeIndex) {
+        return getShapeFillRule(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public FontFamily getPointFontFamily(int ROIIndex, int shapeIndex) {
-        return getShapeFontFamily(ROIIndex, shapeIndex, Point.class);
+    public FontFamily getPointFontFamily(int roiIndex, int shapeIndex) {
+        return getShapeFontFamily(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public Length getPointFontSize(int ROIIndex, int shapeIndex) {
-        return getShapeFontSize(ROIIndex, shapeIndex, Point.class);
+    public Length getPointFontSize(int roiIndex, int shapeIndex) {
+        return getShapeFontSize(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public FontStyle getPointFontStyle(int ROIIndex, int shapeIndex) {
-        return getShapeFontStyle(ROIIndex, shapeIndex, Point.class);
+    public FontStyle getPointFontStyle(int roiIndex, int shapeIndex) {
+        return getShapeFontStyle(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public String getPointID(int ROIIndex, int shapeIndex) {
-        return getShapeID(ROIIndex, shapeIndex, Point.class);
+    public String getPointID(int roiIndex, int shapeIndex) {
+        return getShapeID(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public Boolean getPointLocked(int ROIIndex, int shapeIndex) {
-        return getShapeLocked(ROIIndex, shapeIndex, Point.class);
+    public Boolean getPointLocked(int roiIndex, int shapeIndex) {
+        return getShapeLocked(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public Color getPointStrokeColor(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeColor(ROIIndex, shapeIndex, Point.class);
+    public Color getPointStrokeColor(int roiIndex, int shapeIndex) {
+        return getShapeStrokeColor(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public String getPointStrokeDashArray(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeDashArray(ROIIndex, shapeIndex, Point.class);
+    public String getPointStrokeDashArray(int roiIndex, int shapeIndex) {
+        return getShapeStrokeDashArray(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public Length getPointStrokeWidth(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeWidth(ROIIndex, shapeIndex, Point.class);
+    public Length getPointStrokeWidth(int roiIndex, int shapeIndex) {
+        return getShapeStrokeWidth(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public NonNegativeInteger getPointTheC(int ROIIndex, int shapeIndex) {
-        return getShapeTheC(ROIIndex, shapeIndex, Point.class);
+    public NonNegativeInteger getPointTheC(int roiIndex, int shapeIndex) {
+        return getShapeTheC(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public NonNegativeInteger getPointTheT(int ROIIndex, int shapeIndex) {
-        return getShapeTheT(ROIIndex, shapeIndex, Point.class);
+    public NonNegativeInteger getPointTheT(int roiIndex, int shapeIndex) {
+        return getShapeTheT(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public NonNegativeInteger getPointTheZ(int ROIIndex, int shapeIndex) {
-        return getShapeTheZ(ROIIndex, shapeIndex, Point.class);
+    public NonNegativeInteger getPointTheZ(int roiIndex, int shapeIndex) {
+        return getShapeTheZ(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public AffineTransform getPointTransform(int ROIIndex, int shapeIndex) {
-        return getShapeTransform(ROIIndex, shapeIndex, Point.class);
+    public AffineTransform getPointTransform(int roiIndex, int shapeIndex) {
+        return getShapeTransform(roiIndex, shapeIndex, Point.class);
     }
 
     @Override
-    public String getPointText(int ROIIndex, int shapeIndex) {
-        final Point point = getShape(ROIIndex, shapeIndex, Point.class);
+    public String getPointText(int roiIndex, int shapeIndex) {
+        final Point point = getShape(roiIndex, shapeIndex, Point.class);
         if (point == null) {
             return null;
         }
@@ -815,8 +883,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getPointX(int ROIIndex, int shapeIndex) {
-        final Point point = getShape(ROIIndex, shapeIndex, Point.class);
+    public Double getPointX(int roiIndex, int shapeIndex) {
+        final Point point = getShape(roiIndex, shapeIndex, Point.class);
         if (point == null) {
             return null;
         }
@@ -824,8 +892,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getPointY(int ROIIndex, int shapeIndex) {
-        final Point point = getShape(ROIIndex, shapeIndex, Point.class);
+    public Double getPointY(int roiIndex, int shapeIndex) {
+        final Point point = getShape(roiIndex, shapeIndex, Point.class);
         if (point == null) {
             return null;
         }
@@ -833,83 +901,86 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public String getPolygonAnnotationRef(int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Polygon.class);
+    public String getPolygonAnnotationRef(
+        int roiIndex, int shapeIndex, int annotationRefIndex)
+    {
+        return getShapeAnnotationRef(roiIndex, shapeIndex,
+            annotationRefIndex, Polygon.class);
     }
 
     @Override
-    public Color getPolygonFillColor(int ROIIndex, int shapeIndex) {
-        return getShapeFillColor(ROIIndex, shapeIndex, Polygon.class);
+    public Color getPolygonFillColor(int roiIndex, int shapeIndex) {
+        return getShapeFillColor(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public FillRule getPolygonFillRule(int ROIIndex, int shapeIndex) {
-        return getShapeFillRule(ROIIndex, shapeIndex, Polygon.class);
+    public FillRule getPolygonFillRule(int roiIndex, int shapeIndex) {
+        return getShapeFillRule(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public FontFamily getPolygonFontFamily(int ROIIndex, int shapeIndex) {
-        return getShapeFontFamily(ROIIndex, shapeIndex, Polygon.class);
+    public FontFamily getPolygonFontFamily(int roiIndex, int shapeIndex) {
+        return getShapeFontFamily(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public Length getPolygonFontSize(int ROIIndex, int shapeIndex) {
-        return getShapeFontSize(ROIIndex, shapeIndex, Polygon.class);
+    public Length getPolygonFontSize(int roiIndex, int shapeIndex) {
+        return getShapeFontSize(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public FontStyle getPolygonFontStyle(int ROIIndex, int shapeIndex) {
-        return getShapeFontStyle(ROIIndex, shapeIndex, Polygon.class);
+    public FontStyle getPolygonFontStyle(int roiIndex, int shapeIndex) {
+        return getShapeFontStyle(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public String getPolygonID(int ROIIndex, int shapeIndex) {
-        return getShapeID(ROIIndex, shapeIndex, Polygon.class);
+    public String getPolygonID(int roiIndex, int shapeIndex) {
+        return getShapeID(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public Boolean getPolygonLocked(int ROIIndex, int shapeIndex) {
-        return getShapeLocked(ROIIndex, shapeIndex, Polygon.class);
+    public Boolean getPolygonLocked(int roiIndex, int shapeIndex) {
+        return getShapeLocked(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public Color getPolygonStrokeColor(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeColor(ROIIndex, shapeIndex, Polygon.class);
+    public Color getPolygonStrokeColor(int roiIndex, int shapeIndex) {
+        return getShapeStrokeColor(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public String getPolygonStrokeDashArray(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeDashArray(ROIIndex, shapeIndex, Polygon.class);
+    public String getPolygonStrokeDashArray(int roiIndex, int shapeIndex) {
+        return getShapeStrokeDashArray(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public Length getPolygonStrokeWidth(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeWidth(ROIIndex, shapeIndex, Polygon.class);
+    public Length getPolygonStrokeWidth(int roiIndex, int shapeIndex) {
+        return getShapeStrokeWidth(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public NonNegativeInteger getPolygonTheC(int ROIIndex, int shapeIndex) {
-        return getShapeTheC(ROIIndex, shapeIndex, Polygon.class);
+    public NonNegativeInteger getPolygonTheC(int roiIndex, int shapeIndex) {
+        return getShapeTheC(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public NonNegativeInteger getPolygonTheT(int ROIIndex, int shapeIndex) {
-        return getShapeTheT(ROIIndex, shapeIndex, Polygon.class);
+    public NonNegativeInteger getPolygonTheT(int roiIndex, int shapeIndex) {
+        return getShapeTheT(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public NonNegativeInteger getPolygonTheZ(int ROIIndex, int shapeIndex) {
-        return getShapeTheZ(ROIIndex, shapeIndex, Polygon.class);
+    public NonNegativeInteger getPolygonTheZ(int roiIndex, int shapeIndex) {
+        return getShapeTheZ(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public AffineTransform getPolygonTransform(int ROIIndex, int shapeIndex) {
-        return getShapeTransform(ROIIndex, shapeIndex, Polygon.class);
+    public AffineTransform getPolygonTransform(int roiIndex, int shapeIndex) {
+        return getShapeTransform(roiIndex, shapeIndex, Polygon.class);
     }
 
     @Override
-    public String getPolygonPoints(int ROIIndex, int shapeIndex) {
-        final Polygon polygon = getShape(ROIIndex, shapeIndex, Polygon.class);
+    public String getPolygonPoints(int roiIndex, int shapeIndex) {
+        final Polygon polygon = getShape(roiIndex, shapeIndex, Polygon.class);
         if (polygon == null) {
             return null;
         }
@@ -917,8 +988,8 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public String getPolygonText(int ROIIndex, int shapeIndex) {
-        final Polygon polygon = getShape(ROIIndex, shapeIndex, Polygon.class);
+    public String getPolygonText(int roiIndex, int shapeIndex) {
+        final Polygon polygon = getShape(roiIndex, shapeIndex, Polygon.class);
         if (polygon == null) {
             return null;
         }
@@ -926,83 +997,87 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public String getPolylineAnnotationRef(int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Polyline.class);
+    public String getPolylineAnnotationRef(
+        int roiIndex, int shapeIndex, int annotationRefIndex)
+    {
+        return getShapeAnnotationRef(roiIndex, shapeIndex,
+            annotationRefIndex, Polyline.class);
     }
 
     @Override
-    public Color getPolylineFillColor(int ROIIndex, int shapeIndex) {
-        return getShapeFillColor(ROIIndex, shapeIndex, Polyline.class);
+    public Color getPolylineFillColor(int roiIndex, int shapeIndex) {
+        return getShapeFillColor(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public FillRule getPolylineFillRule(int ROIIndex, int shapeIndex) {
-        return getShapeFillRule(ROIIndex, shapeIndex, Polyline.class);
+    public FillRule getPolylineFillRule(int roiIndex, int shapeIndex) {
+        return getShapeFillRule(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public FontFamily getPolylineFontFamily(int ROIIndex, int shapeIndex) {
-        return getShapeFontFamily(ROIIndex, shapeIndex, Polyline.class);
+    public FontFamily getPolylineFontFamily(int roiIndex, int shapeIndex) {
+        return getShapeFontFamily(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public Length getPolylineFontSize(int ROIIndex, int shapeIndex) {
-        return getShapeFontSize(ROIIndex, shapeIndex, Polyline.class);
+    public Length getPolylineFontSize(int roiIndex, int shapeIndex) {
+        return getShapeFontSize(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public FontStyle getPolylineFontStyle(int ROIIndex, int shapeIndex) {
-        return getShapeFontStyle(ROIIndex, shapeIndex, Polyline.class);
+    public FontStyle getPolylineFontStyle(int roiIndex, int shapeIndex) {
+        return getShapeFontStyle(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public String getPolylineID(int ROIIndex, int shapeIndex) {
-        return getShapeID(ROIIndex, shapeIndex, Polyline.class);
+    public String getPolylineID(int roiIndex, int shapeIndex) {
+        return getShapeID(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public Boolean getPolylineLocked(int ROIIndex, int shapeIndex) {
-        return getShapeLocked(ROIIndex, shapeIndex, Polyline.class);
+    public Boolean getPolylineLocked(int roiIndex, int shapeIndex) {
+        return getShapeLocked(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public Color getPolylineStrokeColor(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeColor(ROIIndex, shapeIndex, Polyline.class);
+    public Color getPolylineStrokeColor(int roiIndex, int shapeIndex) {
+        return getShapeStrokeColor(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public String getPolylineStrokeDashArray(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeDashArray(ROIIndex, shapeIndex, Polyline.class);
+    public String getPolylineStrokeDashArray(int roiIndex, int shapeIndex) {
+        return getShapeStrokeDashArray(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public Length getPolylineStrokeWidth(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeWidth(ROIIndex, shapeIndex, Polyline.class);
+    public Length getPolylineStrokeWidth(int roiIndex, int shapeIndex) {
+        return getShapeStrokeWidth(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public NonNegativeInteger getPolylineTheC(int ROIIndex, int shapeIndex) {
-        return getShapeTheC(ROIIndex, shapeIndex, Polyline.class);
+    public NonNegativeInteger getPolylineTheC(int roiIndex, int shapeIndex) {
+        return getShapeTheC(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public NonNegativeInteger getPolylineTheT(int ROIIndex, int shapeIndex) {
-        return getShapeTheT(ROIIndex, shapeIndex, Polyline.class);
+    public NonNegativeInteger getPolylineTheT(int roiIndex, int shapeIndex) {
+        return getShapeTheT(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public NonNegativeInteger getPolylineTheZ(int ROIIndex, int shapeIndex) {
-        return getShapeTheZ(ROIIndex, shapeIndex, Polyline.class);
+    public NonNegativeInteger getPolylineTheZ(int roiIndex, int shapeIndex) {
+        return getShapeTheZ(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public AffineTransform getPolylineTransform(int ROIIndex, int shapeIndex) {
-        return getShapeTransform(ROIIndex, shapeIndex, Polyline.class);
+    public AffineTransform getPolylineTransform(int roiIndex, int shapeIndex) {
+        return getShapeTransform(roiIndex, shapeIndex, Polyline.class);
     }
 
     @Override
-    public Marker getPolylineMarkerStart(int ROIIndex, int shapeIndex) {
-        final Polyline polyline = getShape(ROIIndex, shapeIndex, Polyline.class);
+    public Marker getPolylineMarkerStart(int roiIndex, int shapeIndex) {
+        final Polyline polyline =
+            getShape(roiIndex, shapeIndex, Polyline.class);
         if (polyline == null) {
             return null;
         }
@@ -1012,14 +1087,16 @@ public class ROIMetadata extends MetadataBase {
         }
         try {
             return Marker.fromString(markerStart.getValue());
-        } catch (EnumerationException ex) {
+        }
+        catch (EnumerationException ex) {
             return null;
         }
     }
 
     @Override
-    public Marker getPolylineMarkerEnd(int ROIIndex, int shapeIndex) {
-        final Polyline polyline = getShape(ROIIndex, shapeIndex, Polyline.class);
+    public Marker getPolylineMarkerEnd(int roiIndex, int shapeIndex) {
+        final Polyline polyline =
+            getShape(roiIndex, shapeIndex, Polyline.class);
         if (polyline == null) {
             return null;
         }
@@ -1029,14 +1106,16 @@ public class ROIMetadata extends MetadataBase {
         }
         try {
             return Marker.fromString(markerEnd.getValue());
-        } catch (EnumerationException ex) {
+        }
+        catch (EnumerationException ex) {
             return null;
         }
     }
 
     @Override
-    public String getPolylinePoints(int ROIIndex, int shapeIndex) {
-        final Polyline polyline = getShape(ROIIndex, shapeIndex, Polyline.class);
+    public String getPolylinePoints(int roiIndex, int shapeIndex) {
+        final Polyline polyline =
+            getShape(roiIndex, shapeIndex, Polyline.class);
         if (polyline == null) {
             return null;
         }
@@ -1044,8 +1123,9 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public String getPolylineText(int ROIIndex, int shapeIndex) {
-        final Polyline polyline = getShape(ROIIndex, shapeIndex, Polyline.class);
+    public String getPolylineText(int roiIndex, int shapeIndex) {
+        final Polyline polyline =
+            getShape(roiIndex, shapeIndex, Polyline.class);
         if (polyline == null) {
             return null;
         }
@@ -1053,83 +1133,87 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public String getRectangleAnnotationRef(int ROIIndex, int shapeIndex, int annotationRefIndex) {
-        return getShapeAnnotationRef(ROIIndex, shapeIndex, annotationRefIndex, Rectangle.class);
+    public String getRectangleAnnotationRef(
+        int roiIndex, int shapeIndex, int annotationRefIndex)
+    {
+        return getShapeAnnotationRef(roiIndex, shapeIndex,
+            annotationRefIndex, Rectangle.class);
     }
 
     @Override
-    public Color getRectangleFillColor(int ROIIndex, int shapeIndex) {
-        return getShapeFillColor(ROIIndex, shapeIndex, Rectangle.class);
+    public Color getRectangleFillColor(int roiIndex, int shapeIndex) {
+        return getShapeFillColor(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public FillRule getRectangleFillRule(int ROIIndex, int shapeIndex) {
-        return getShapeFillRule(ROIIndex, shapeIndex, Rectangle.class);
+    public FillRule getRectangleFillRule(int roiIndex, int shapeIndex) {
+        return getShapeFillRule(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public FontFamily getRectangleFontFamily(int ROIIndex, int shapeIndex) {
-        return getShapeFontFamily(ROIIndex, shapeIndex, Rectangle.class);
+    public FontFamily getRectangleFontFamily(int roiIndex, int shapeIndex) {
+        return getShapeFontFamily(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public Length getRectangleFontSize(int ROIIndex, int shapeIndex) {
-        return getShapeFontSize(ROIIndex, shapeIndex, Rectangle.class);
+    public Length getRectangleFontSize(int roiIndex, int shapeIndex) {
+        return getShapeFontSize(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public FontStyle getRectangleFontStyle(int ROIIndex, int shapeIndex) {
-        return getShapeFontStyle(ROIIndex, shapeIndex, Rectangle.class);
+    public FontStyle getRectangleFontStyle(int roiIndex, int shapeIndex) {
+        return getShapeFontStyle(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public String getRectangleID(int ROIIndex, int shapeIndex) {
-        return getShapeID(ROIIndex, shapeIndex, Rectangle.class);
+    public String getRectangleID(int roiIndex, int shapeIndex) {
+        return getShapeID(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public Boolean getRectangleLocked(int ROIIndex, int shapeIndex) {
-        return getShapeLocked(ROIIndex, shapeIndex, Rectangle.class);
+    public Boolean getRectangleLocked(int roiIndex, int shapeIndex) {
+        return getShapeLocked(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public Color getRectangleStrokeColor(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeColor(ROIIndex, shapeIndex, Rectangle.class);
+    public Color getRectangleStrokeColor(int roiIndex, int shapeIndex) {
+        return getShapeStrokeColor(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public String getRectangleStrokeDashArray(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeDashArray(ROIIndex, shapeIndex, Rectangle.class);
+    public String getRectangleStrokeDashArray(int roiIndex, int shapeIndex) {
+        return getShapeStrokeDashArray(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public Length getRectangleStrokeWidth(int ROIIndex, int shapeIndex) {
-        return getShapeStrokeWidth(ROIIndex, shapeIndex, Rectangle.class);
+    public Length getRectangleStrokeWidth(int roiIndex, int shapeIndex) {
+        return getShapeStrokeWidth(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public NonNegativeInteger getRectangleTheC(int ROIIndex, int shapeIndex) {
-        return getShapeTheC(ROIIndex, shapeIndex, Rectangle.class);
+    public NonNegativeInteger getRectangleTheC(int roiIndex, int shapeIndex) {
+        return getShapeTheC(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public NonNegativeInteger getRectangleTheT(int ROIIndex, int shapeIndex) {
-        return getShapeTheT(ROIIndex, shapeIndex, Rectangle.class);
+    public NonNegativeInteger getRectangleTheT(int roiIndex, int shapeIndex) {
+        return getShapeTheT(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public NonNegativeInteger getRectangleTheZ(int ROIIndex, int shapeIndex) {
-        return getShapeTheZ(ROIIndex, shapeIndex, Rectangle.class);
+    public NonNegativeInteger getRectangleTheZ(int roiIndex, int shapeIndex) {
+        return getShapeTheZ(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public AffineTransform getRectangleTransform(int ROIIndex, int shapeIndex) {
-        return getShapeTransform(ROIIndex, shapeIndex, Rectangle.class);
+    public AffineTransform getRectangleTransform(int roiIndex, int shapeIndex) {
+        return getShapeTransform(roiIndex, shapeIndex, Rectangle.class);
     }
 
     @Override
-    public String getRectangleText(int ROIIndex, int shapeIndex) {
-        final Rectangle rectangle = getShape(ROIIndex, shapeIndex, Rectangle.class);
+    public String getRectangleText(int roiIndex, int shapeIndex) {
+        final Rectangle rectangle =
+            getShape(roiIndex, shapeIndex, Rectangle.class);
         if (rectangle == null) {
             return null;
         }
@@ -1137,8 +1221,9 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getRectangleHeight(int ROIIndex, int shapeIndex) {
-        final Rectangle rectangle = getShape(ROIIndex, shapeIndex, Rectangle.class);
+    public Double getRectangleHeight(int roiIndex, int shapeIndex) {
+        final Rectangle rectangle =
+            getShape(roiIndex, shapeIndex, Rectangle.class);
         if (rectangle == null) {
             return null;
         }
@@ -1146,8 +1231,9 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getRectangleWidth(int ROIIndex, int shapeIndex) {
-        final Rectangle rectangle = getShape(ROIIndex, shapeIndex, Rectangle.class);
+    public Double getRectangleWidth(int roiIndex, int shapeIndex) {
+        final Rectangle rectangle =
+            getShape(roiIndex, shapeIndex, Rectangle.class);
         if (rectangle == null) {
             return null;
         }
@@ -1155,8 +1241,9 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getRectangleX(int ROIIndex, int shapeIndex) {
-        final Rectangle rectangle = getShape(ROIIndex, shapeIndex, Rectangle.class);
+    public Double getRectangleX(int roiIndex, int shapeIndex) {
+        final Rectangle rectangle =
+            getShape(roiIndex, shapeIndex, Rectangle.class);
         if (rectangle == null) {
             return null;
         }
@@ -1164,8 +1251,9 @@ public class ROIMetadata extends MetadataBase {
     }
 
     @Override
-    public Double getRectangleY(int ROIIndex, int shapeIndex) {
-        final Rectangle rectangle = getShape(ROIIndex, shapeIndex, Rectangle.class);
+    public Double getRectangleY(int roiIndex, int shapeIndex) {
+        final Rectangle rectangle =
+            getShape(roiIndex, shapeIndex, Rectangle.class);
         if (rectangle == null) {
             return null;
         }

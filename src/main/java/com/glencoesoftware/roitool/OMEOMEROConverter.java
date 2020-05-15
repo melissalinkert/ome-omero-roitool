@@ -50,7 +50,7 @@ import omero.sys.ParametersI;
 
 public class OMEOMEROConverter {
 
-    private static final Logger log =
+    private static final Logger LOG =
             LoggerFactory.getLogger(OMEOMEROConverter.class);
 
     public static final ImmutableMap<String, String> ALL_GROUPS_CONTEXT =
@@ -64,17 +64,33 @@ public class OMEOMEROConverter {
 
     private String lsidFormat;
 
-    public OMEOMEROConverter(long imageId)
-            throws ServerError, DependencyException {
-        this.imageId = imageId;
+    /**
+     * Construct a new converter for the given OMERO image.
+     *
+     * @param image OMERO Image ID
+     */
+    public OMEOMEROConverter(long image)
+            throws ServerError, DependencyException
+    {
+        this.imageId = image;
         this.target = new ROIMetadataStoreClient();
         ServiceFactory factory = new ServiceFactory();
         this.omeXmlService = factory.getInstance(OMEXMLService.class);
     }
 
-    public void initialize(String username, String password, String server, int port, Long group)
-            throws CannotCreateSessionException, PermissionDeniedException,
-                   ServerError
+    /**
+     * Open an OMERO session with the given credentials.
+     *
+     * @param username user's name
+     * @param password user's password
+     * @param server server name
+     * @param port server port
+     * @param group group ID; if null, user's default group is used
+     */
+    public void initialize(String username, String password, String server,
+        int port, Long group)
+        throws CannotCreateSessionException, PermissionDeniedException,
+               ServerError
     {
         target.initialize(username, password, server, port, group, true);
         IConfigPrx iConfig = this.target.getServiceFactory().getConfigService();
@@ -83,6 +99,13 @@ public class OMEOMEROConverter {
                 iConfig.getDatabaseUuid());
     }
 
+    /**
+     * Open an OMERO session with the given credentials.
+     *
+     * @param server server name
+     * @param port server port
+     * @param sessionKey valid session key
+     */
     public void initialize(String server, int port, String sessionKey)
             throws CannotCreateSessionException, PermissionDeniedException,
                    ServerError
@@ -90,45 +113,55 @@ public class OMEOMEROConverter {
         initialize(sessionKey, sessionKey, server, port, null);
     }
 
+    /**
+     * Import ROIs from an OME-XML file and link to the current OMERO image.
+     *
+     * @param input OME-XML file
+     * @return list of linked OMERO ROIs
+     */
     public List<IObject> importRoisFromFile(File input)
             throws IOException, MissingLibraryException
     {
-        log.info("ROI import started");
+        LOG.info("ROI import started");
         String xml = new String(
-                Files.readAllBytes(input.toPath()), StandardCharsets.UTF_8);
-            log.debug("Importing OME-XML: {}", xml);
+            Files.readAllBytes(input.toPath()), StandardCharsets.UTF_8);
+        LOG.debug("Importing OME-XML: {}", xml);
 
         OMEXMLMetadata xmlMeta;
         try {
             xmlMeta = omeXmlService.createOMEXMLMetadata(xml);
-            log.info("Converting to OMERO metadata");
+            LOG.info("Converting to OMERO metadata");
             MetadataConverter.convertMetadata(xmlMeta, target);
-            log.info("ROI count: {}", xmlMeta.getROICount());
-            log.debug("Containers: {}",
+            LOG.info("ROI count: {}", xmlMeta.getROICount());
+            LOG.debug("Containers: {}",
                       target.countCachedContainers(null, null));
-            log.debug("References: {}",
+            LOG.debug("References: {}",
                       target.countCachedReferences(null, null));
             target.postProcess();
-            try
-            {
+            try {
                 List<IObject> rois = target.saveToDB(imageId);
                 return rois;
             }
-            catch (Exception e)
-            {
-                log.error("Exception saving to DB", e);
+            catch (Exception e) {
+                LOG.error("Exception saving to DB", e);
             }
         }
-        catch (ServiceException s)
-        {
-            log.error("Exception creating OME-XML metadata", s);
+        catch (ServiceException s) {
+            LOG.error("Exception creating OME-XML metadata", s);
         }
         return null;
     }
 
+    /**
+     * Save ROIs linked to the current OMERO Image to the specified file.
+     *
+     * @param file output file
+     * @return list of OMERO ROIs that were saved
+     */
     public List<? extends IObject> exportRoisToFile(File file)
-            throws Exception {
-        log.info("ROI export started");
+        throws Exception
+    {
+        LOG.info("ROI export started");
         final OMEXMLMetadata xmlMeta = omeXmlService.createOMEXMLMetadata();
         xmlMeta.createRoot();
         List<Roi> rois = getRois();
@@ -136,14 +169,14 @@ public class OMEOMEROConverter {
         for (final Roi roi : rois) {
             roiAnnotations.addAll(getAnnotations(roi.getId().getValue()));
         }
-        log.debug("Annotations: {}", roiAnnotations);
-        log.info("Converting to OME-XML metadata");
+        LOG.debug("Annotations: {}", roiAnnotations);
+        LOG.info("Converting to OME-XML metadata");
         omeXmlService.convertMetadata(
                 new ROIMetadata(this::getLsid, rois), xmlMeta);
         omeXmlService.convertMetadata(
                 new AnnotationMetadata(this::getLsid, roiAnnotations), xmlMeta);
-        log.info("ROI count: {}", xmlMeta.getROICount());
-        log.info("Writing OME-XML to: {}", file.getAbsolutePath());
+        LOG.info("ROI count: {}", xmlMeta.getROICount());
+        LOG.info("Writing OME-XML to: {}", file.getAbsolutePath());
         XMLWriter xmlWriter = new XMLWriter();
         xmlWriter.writeFile(file, (OME) xmlMeta.getRoot(), false);
         return rois;
@@ -151,7 +184,8 @@ public class OMEOMEROConverter {
 
     /**
      * Find the LSID of the given OMERO model object.
-     * Ported from <code>org.openmicroscopy.client.downloader.XmlGenerator</code>
+     * Ported from
+     * <code>org.openmicroscopy.client.downloader.XmlGenerator</code>
      * @param object an OMERO model object, hydrated with its update event
      * @return the LSID for that object
      */
@@ -173,7 +207,8 @@ public class OMEOMEROConverter {
 
     /**
      * Query the server for the given ROIs.
-     * Ported from <code>org.openmicroscopy.client.downloader.XmlGenerator</code>
+     * Ported from
+     * <code>org.openmicroscopy.client.downloader.XmlGenerator</code>
      * @return the ROIs, hydrated sufficiently for conversion to XML
      * @throws ServerError if the ROIs could not be retrieved
      */
@@ -184,7 +219,8 @@ public class OMEOMEROConverter {
                 "JOIN FETCH r.shapes AS s " +
                 "WHERE r.image.id = :id",
                 new ParametersI().addId(imageId),
-                ALL_GROUPS_CONTEXT)) {
+                ALL_GROUPS_CONTEXT))
+        {
             rois.add((Roi) result);
         }
         return rois;
@@ -198,16 +234,18 @@ public class OMEOMEROConverter {
                         "JOIN l.child as a " +
                         "WHERE l.parent.id = :id",
                 new ParametersI().addId(roiId),
-                ALL_GROUPS_CONTEXT)) {
+                ALL_GROUPS_CONTEXT))
+        {
             anns.add((Annotation) result);
-        };
+        }
         return anns;
     }
 
-    public void close()
-    {
-        if (this.target != null)
-        {
+    /**
+     * Close the converter and log out of the current OMERO session.
+     */
+    public void close() {
+        if (this.target != null) {
             this.target.logout();
         }
     }

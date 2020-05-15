@@ -38,8 +38,7 @@ import picocli.CommandLine.Option;
         Export.class
     }
 )
-public class Main implements Callable<Integer>
-{
+public class Main implements Callable<Integer> {
     @Option(
         names = "--help",
         usageHelp = true,
@@ -47,37 +46,35 @@ public class Main implements Callable<Integer>
     )
     boolean help;
 
-    private static final Logger log =
+    private static final Logger LOG =
             LoggerFactory.getLogger(Main.class);
 
     @Option(names = "--debug", description = "Set logging level to DEBUG")
     boolean debug;
 
-    Main()
-    {
+    Main() {
         ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger)
                 LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        if (debug)
-        {
+        if (debug) {
             root.setLevel(Level.DEBUG);
         }
-        else
-        {
+        else {
             root.setLevel(Level.INFO);
         }
     }
 
-    public static void main(String[] args)
-    {
+    /**
+     * Entry point for ome-omero-roitool command.
+     * @param args command line arguments
+     */
+    public static void main(String[] args) {
         String version = Main.class.getPackage().getImplementationVersion();
-        if (version == null)
-        {
+        if (version == null) {
             version = "DEV";
         }
-        log.info("ROI tool {} started", version);
+        LOG.info("ROI tool {} started", version);
         Integer returnCode = CommandLine.call(new Main(), args);
-        if (returnCode != null)
-        {
+        if (returnCode != null) {
             System.exit(returnCode);
         }
     }
